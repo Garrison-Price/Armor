@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 public class SceneManager : MonoBehaviour {
 	string previousScene = "MainMenu";
@@ -26,6 +27,8 @@ public class SceneManager : MonoBehaviour {
 		LoadButtons();
 	}
 
+	//This function creates and initializes the dictionary of buttons.
+	//This is where you should add the names of the buttons and which functions you would like to call when pressed.
 	public void LoadDictionary() {
 		if(_sm.functionMap == null) {
 			//We haven't created and loaded the dictionary yet, so lets do that.
@@ -40,11 +43,19 @@ public class SceneManager : MonoBehaviour {
 
 	//Initializes all scene changing buttons and their on click methods.
 	public void LoadButtons() {
+		//Setup regular expression for finding level selection buttons
+		Regex levelRegularExpression = new Regex("(Level)(\\d+)(Button)",RegexOptions.IgnoreCase|RegexOptions.Singleline);
 		UnityEngine.UI.Button[] buttons = Resources.FindObjectsOfTypeAll(typeof(UnityEngine.UI.Button)) as UnityEngine.UI.Button[];
 		foreach(UnityEngine.UI.Button button in buttons) {
 			button.onClick.RemoveAllListeners();
-			if(_sm.functionMap.ContainsKey(button.name))
+			if(_sm.functionMap.ContainsKey(button.name)) {
 				UnityEditor.Events.UnityEventTools.AddIntPersistentListener(button.onClick, _sm.functionMap[button.name], 1);
+			} else {
+				//See if we found a match for a level selection button
+				Match match = levelRegularExpression.Match(button.name);
+				if(match.Success) //Found one!
+					UnityEditor.Events.UnityEventTools.AddIntPersistentListener(button.onClick, SelectLevelButtonClicked, System.Int32.Parse(match.Groups[2].ToString()));
+			}
 		}
 	}
 
