@@ -26,7 +26,7 @@ public class SceneManager : MonoBehaviour {
 
 	void OnLevelWasLoaded() {
 		LoadButtons();
-		l = new LevelGenerator(64);
+		l = new LevelGenerator(32);
 	}
 
 	//This function creates and initializes the dictionary of buttons.
