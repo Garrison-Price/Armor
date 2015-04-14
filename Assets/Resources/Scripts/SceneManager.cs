@@ -26,7 +26,8 @@ public class SceneManager : MonoBehaviour {
 
 	void OnLevelWasLoaded() {
 		LoadButtons();
-		l = new LevelGenerator(32);
+		if(l != null) 
+			l.BuildScene();
 	}
 
 	//This function creates and initializes the dictionary of buttons.
@@ -69,7 +70,8 @@ public class SceneManager : MonoBehaviour {
 
 	//Button clicked to select and play a level
 	public void SelectLevelButtonClicked(int level) {
-		Application.LoadLevel(string.Concat("Level",level,"Scene"));
+		Application.LoadLevel(string.Concat("GameLevel"));
+		l = new LevelGenerator(64,level);
 	}
 
 	//Button clicked to go to the level selection menu

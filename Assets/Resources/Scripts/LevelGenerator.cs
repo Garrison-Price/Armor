@@ -17,26 +17,18 @@ public class LevelGenerator {
 	public bool doneGenerating;
 	private List<GameObject> placedObjects;
 
-	private static float MEDIUM_TREE_RANGE = 0.60f;
-	private static float SMALL_TREE_RANGE = 0.85f;
+	private static float MEDIUM_TREE_RANGE = 0.40f;
+	private static float SMALL_TREE_RANGE = 0.95f;
 
-	public LevelGenerator(int size) {
+	public LevelGenerator(int size, int level) {
 		doneGenerating = false;
 		levelSize = size;
 
 		UnloadAssets ();
 
-		Regex levelRegularExpression = new Regex("(Level)(\\d+)(Scene)",RegexOptions.IgnoreCase|RegexOptions.Singleline);
-		Match match = levelRegularExpression.Match(Application.loadedLevelName);
-
-		if(match.Success) {
-			currentLevel = System.Int32.Parse(match.Groups[2].ToString());
-			LoadAssets();
-			GenerateLevelImage();
-			BuildScene();
-		} else {
-			currentLevel = -1;
-		}
+		currentLevel = level;
+		LoadAssets();
+		GenerateLevelImage();
 	}
 
 	private void LoadAssets() {
@@ -75,7 +67,7 @@ public class LevelGenerator {
 				//noise = levelTemplate.GetPixel((int)Mathf.Floor(x * 32.0f / levelSize),(int)Mathf.Floor(y * 32.0f / levelSize)).grayscale - noise;
 				//noise = Mathf.Min(1.0f,noise);
 				if(noise > .6f)			//This ended up looking good for a threshold
-					noise = .85f;
+					noise = 1.0f;
 				else if(noise <= .6f)
 					noise = 0.0f;
 				pixels[x + y * levelSize] = new Color(noise,noise,noise);
@@ -85,72 +77,43 @@ public class LevelGenerator {
 		generatedLevel.Apply();
 	}
 
-	private void BuildScene() {
-		for(float x = 0.0f; x < 4; x+=1.68f) {
-			for(float y = 0.0f; y < levelSize; y+=1.68f) {
+	public void BuildScene() {
+		GameObject newSceneryObject;
+		bool placed;
+		int depth = 0;
+		for(float x = 0.0f; x < levelSize; x+=.5f) {
+			for(float y = levelSize; y >= 0.0f; y-=.5f) {
+				depth++;
 				//Place a ground tile, grass if not a path, path if it is.
 				//Start object placement
-				PlaceObjects(x,y);
-			}
-		}
-	}
-
-	private void PlaceObjects(float x, float y) {
-		//Check to see if this is a spot we can place items at
-		int xpixel = (int)(x/1.68f); //x mapped to our generated level texture
-		int ypixel = (int)(y/1.68f); //y mapped to the generated level texture
-
-		if(generatedLevel.GetPixel(xpixel,ypixel).grayscale < .5f && levelTemplate.GetPixel((int)Mathf.Floor(xpixel * 32.0f / levelSize),(int)Mathf.Floor(ypixel * 32.0f / levelSize)).grayscale < .5f) {
-			//We can place objects here as it is not a path and it is a part of the forest
-			float theta = 0.0f;
-			GameObject newSceneryObject;
-			GameObject previousObject = null;
-			while(theta < 360) {
-				//Randomly pick an object for use
-				float r = Random.value;
-				if(r < MEDIUM_TREE_RANGE)
-					newSceneryObject = (GameObject) GameObject.Instantiate(mediumTrees[(int)(Random.value * mediumTrees.Length)]);
-				else if(r > MEDIUM_TREE_RANGE && r < SMALL_TREE_RANGE) 
-					newSceneryObject = (GameObject) GameObject.Instantiate(smallTrees[(int)(Random.value * smallTrees.Length)]);
-				else
-					newSceneryObject = (GameObject) GameObject.Instantiate(rocks[(int)(Random.value * rocks.Length)]);
-
-				if(previousObject == null) {
-					xpixel = (int)(newSceneryObject.transform.position.x/1.68f);
-					ypixel = (int)(newSceneryObject.transform.position.y/1.68f);
-					if(xpixel > 0 && xpixel < levelSize && ypixel > 0 && ypixel < levelSize && generatedLevel.GetPixel(xpixel,ypixel).grayscale < .5f && levelTemplate.GetPixel((int)Mathf.Floor(xpixel * 32.0f / levelSize),(int)Mathf.Floor(ypixel * 32.0f / levelSize)).grayscale < .5f) {
-						foreach(GameObject go in placedObjects)
-							if(newSceneryObject.GetComponent<CircleCollider2D>().IsTouching(go.GetComponent<CircleCollider2D>()))
-								return;
+				//PlaceObjects(x,y);
+				int xpixel = (int)(x/1.68f); //x mapped to our generated level texture
+				int ypixel = (int)(y/1.68f); //y mapped to the generated level texture
+				if(generatedLevel.GetPixel(xpixel,ypixel).r < .5f && levelTemplate.GetPixel((int)Mathf.Floor(xpixel * 32.0f / levelSize),(int)Mathf.Floor(ypixel * 32.0f / levelSize)).r > .5f) {
+					float r = Random.value;
+					placed = true;
+					if(r < MEDIUM_TREE_RANGE) {
+						newSceneryObject = (GameObject) GameObject.Instantiate(mediumTrees[(int)(Random.value * mediumTrees.Length)]);
 					}
-					else
-						return;
-					newSceneryObject.transform.position.Set(x,y,0);
-					placedObjects.Add(newSceneryObject);
-					previousObject = newSceneryObject;
-				}
-				else {
-					bool placed = false;
-					while(theta < 360 && !placed) {
-						newSceneryObject.transform.position = new Vector3(previousObject.transform.position.x + Mathf.Cos(Mathf.Deg2Rad * theta) * (previousObject.GetComponent<CircleCollider2D>().radius + newSceneryObject.GetComponent<CircleCollider2D>().radius), previousObject.transform.position.y + Mathf.Sin(Mathf.Deg2Rad * theta) * (previousObject.GetComponent<CircleCollider2D>().radius + newSceneryObject.GetComponent<CircleCollider2D>().radius), 0);
-						placed = true;
-						xpixel = (int)(newSceneryObject.transform.position.x/1.68f);
-						ypixel = (int)(newSceneryObject.transform.position.y/1.68f);
-						if(xpixel > 0 && xpixel < levelSize && ypixel > 0 && ypixel < levelSize && generatedLevel.GetPixel(xpixel,ypixel).grayscale < .5f && levelTemplate.GetPixel((int)Mathf.Floor(xpixel * 32.0f / levelSize),(int)Mathf.Floor(ypixel * 32.0f / levelSize)).grayscale < .5f) {
-							foreach(GameObject go in placedObjects)
-								if(newSceneryObject.GetComponent<CircleCollider2D>().IsTouching(go.GetComponent<CircleCollider2D>()))
-									placed = false;
-						}
-						else
-							placed = false;
-						theta+=5;
+					else if(r > MEDIUM_TREE_RANGE && r < SMALL_TREE_RANGE) {
+						newSceneryObject = (GameObject) GameObject.Instantiate(smallTrees[(int)(Random.value * smallTrees.Length)]);
 					}
-					if(!placed)
-						Object.Destroy(newSceneryObject);
 					else {
-						theta = 0;
+						newSceneryObject = (GameObject) GameObject.Instantiate(rocks[(int)(Random.value * rocks.Length)]);
+					}
+					foreach(GameObject go in placedObjects) {
+						if(Mathf.Pow(newSceneryObject.GetComponent<CircleCollider2D>().radius + go.GetComponent<CircleCollider2D>().radius,2) >= Mathf.Pow(x-go.transform.position.x,2)+Mathf.Pow(y-go.transform.position.y,2)) {
+							placed = false;
+							break;
+						}
+					}
+					if(!placed) {
+						Object.Destroy(newSceneryObject);
+					}
+					else {
+						newSceneryObject.GetComponent<SpriteRenderer>().sortingOrder = depth;
+						newSceneryObject.transform.position = new Vector3(x,y,0);
 						placedObjects.Add(newSceneryObject);
-						previousObject = newSceneryObject;
 					}
 				}
 			}
