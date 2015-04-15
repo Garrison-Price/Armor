@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 public class SceneManager : MonoBehaviour {
 	string previousScene = "MainMenu";
 	private static SceneManager _sm;
-	private Dictionary<string, UnityEngine.Events.UnityAction<int>> functionMap;
+	private Dictionary<string, UnityEngine.Events.UnityAction> functionMap;
 	LevelGenerator l;
 	
 	void Awake() {
@@ -35,12 +35,12 @@ public class SceneManager : MonoBehaviour {
 	public void LoadDictionary() {
 		if(_sm.functionMap == null) {
 			//We haven't created and loaded the dictionary yet, so lets do that.
-			functionMap = new Dictionary<string, UnityEngine.Events.UnityAction<int>>();
-			functionMap.Add("LevelSelectButton",LevelSelectButtonClicked);
-			functionMap.Add("OptionsButton",OptionsButtonClicked);
-			functionMap.Add("CreditsButton",CreditsButtonClicked);
-			functionMap.Add("QuitButton",QuitButtonClicked);
-			functionMap.Add("BackButton",BackButtonClicked);
+			functionMap = new Dictionary<string, UnityEngine.Events.UnityAction>();
+			functionMap.Add("LevelSelectButton",()=>{LevelSelectButtonClicked();});
+			functionMap.Add("OptionsButton",()=>{OptionsButtonClicked();});
+			functionMap.Add("CreditsButton",()=>{CreditsButtonClicked();});
+			functionMap.Add("QuitButton",()=>{QuitButtonClicked();});
+			functionMap.Add("BackButton",()=>{BackButtonClicked();});
 		}
 	}
 
@@ -50,20 +50,21 @@ public class SceneManager : MonoBehaviour {
 		Regex levelRegularExpression = new Regex("(Level)(\\d+)(Button)",RegexOptions.IgnoreCase|RegexOptions.Singleline);
 		UnityEngine.UI.Button[] buttons = Resources.FindObjectsOfTypeAll(typeof(UnityEngine.UI.Button)) as UnityEngine.UI.Button[];
 		foreach(UnityEngine.UI.Button button in buttons) {
-			button.onClick.RemoveAllListeners();
+
+			//button.onClick.RemoveAllListeners();
 			if(_sm.functionMap.ContainsKey(button.name)) {
-				UnityEditor.Events.UnityEventTools.AddIntPersistentListener(button.onClick, _sm.functionMap[button.name], 1);
+				Debug.Log(button.name);
+				button.onClick.AddListener(_sm.functionMap[button.name]);
 			} else {
 				//See if we found a match for a level selection button
 				Match match = levelRegularExpression.Match(button.name);
 				if(match.Success) //Found one!
-					UnityEditor.Events.UnityEventTools.AddIntPersistentListener(button.onClick, SelectLevelButtonClicked, System.Int32.Parse(match.Groups[2].ToString()));
+					button.onClick.AddListener(() => {SelectLevelButtonClicked(System.Int32.Parse(match.Groups[2].ToString()));});
 			}
 		}
 	}
-
-	//Input is not used here but is required for Dictionary
-	public void BackButtonClicked(int ambiguous) {
+	
+	public void BackButtonClicked() {
 		//Go Back to the previous scene... this may need some work when returning to a game scene.
 		Application.LoadLevel(previousScene);
 	}
@@ -75,29 +76,25 @@ public class SceneManager : MonoBehaviour {
 	}
 
 	//Button clicked to go to the level selection menu
-	//Input is not used here but is required for Dictionary
-	public void LevelSelectButtonClicked(int ambiguous) {
+	public void LevelSelectButtonClicked() {
 		previousScene = Application.loadedLevelName;
 		Application.LoadLevel("LevelSelectScene");
 	}
 
 	//Button clicked to open the options menu
-	//Input is not used here but is required for Dictionary
-	public void OptionsButtonClicked(int ambiguous) {
+	public void OptionsButtonClicked() {
 		previousScene = Application.loadedLevelName;
 		Application.LoadLevel("OptionsScene");
 	}
 
 	//Button clicked to view the credits
-	//Input is not used here but is required for Dictionary
-	public void CreditsButtonClicked(int ambiguous) {
+	public void CreditsButtonClicked() {
 		previousScene = Application.loadedLevelName;
 		Application.LoadLevel("CreditsScene");
 	}
 
 	//Button clicked to quit the game.
-	//Input is not used here but is required for Dictionary
-	public void QuitButtonClicked(int ambiguous) {
+	public void QuitButtonClicked() {
 		Application.Quit();
 	}
 }
