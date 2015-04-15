@@ -35,8 +35,8 @@ public class LevelGenerator {
 		mediumTrees = Resources.LoadAll("Sprites/Scenery/MediumTrees").Cast<GameObject>().ToArray();
 		smallTrees = Resources.LoadAll("Sprites/Scenery/SmallTrees").Cast<GameObject>().ToArray();
 		rocks = Resources.LoadAll("Sprites/Scenery/Rocks").Cast<GameObject>().ToArray();
-		ground = Resources.Load("Sprites/Scenery/Ground") as GameObject;
-		path = Resources.Load("Sprites/Scenery/Path") as GameObject;
+		ground = Resources.Load("Sprites/Ground") as GameObject;
+		path = Resources.Load("Sprites/Path") as GameObject;
 		levelTemplate = Resources.Load("Art/Levels/Level"+currentLevel+"Path") as Texture2D;
 		placedObjects = new List<GameObject>();
 	}
@@ -79,7 +79,21 @@ public class LevelGenerator {
 
 	public void BuildScene() {
 		GameObject newSceneryObject;
+		GameObject groundObject;
 		bool placed;
+
+		for(int x = 0; x < levelSize+1; x++) {
+			for(int y = 0; y < levelSize+1; y++) {
+				if(levelTemplate.GetPixel((int)Mathf.Floor(x * 32.0f / levelSize),(int)Mathf.Floor(y * 32.0f / levelSize)).r > .5f) {
+					//Grass
+					groundObject = (GameObject) GameObject.Instantiate(ground);
+				} else {
+					//Path
+					groundObject = (GameObject) GameObject.Instantiate(path);
+				}
+				groundObject.transform.position = new Vector3(x,y,0);
+			}
+		}
 		int depth = 0;
 		for(float x = 0.0f; x < levelSize; x+=.5f) {
 			for(float y = levelSize; y >= 0.0f; y-=.5f) {
@@ -87,8 +101,8 @@ public class LevelGenerator {
 				//Place a ground tile, grass if not a path, path if it is.
 				//Start object placement
 				//PlaceObjects(x,y);
-				int xpixel = (int)(x/1.68f); //x mapped to our generated level texture
-				int ypixel = (int)(y/1.68f); //y mapped to the generated level texture
+				int xpixel = (int)(x);///1.68f); //x mapped to our generated level texture
+				int ypixel = (int)(y);///1.68f); //y mapped to the generated level texture
 				if(generatedLevel.GetPixel(xpixel,ypixel).r < .5f && levelTemplate.GetPixel((int)Mathf.Floor(xpixel * 32.0f / levelSize),(int)Mathf.Floor(ypixel * 32.0f / levelSize)).r > .5f) {
 					float r = Random.value;
 					placed = true;
