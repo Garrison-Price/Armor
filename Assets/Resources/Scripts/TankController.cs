@@ -16,6 +16,22 @@ public class TankController : MonoBehaviour {
 
 		transform.Find("TankTurret").transform.Rotate(0,0,tankTurretRot * turretRotationConstant);
 
-		Camera.main.transform.position = new Vector3(transform.position.x,transform.position.y,Camera.main.transform.position.z);
+		Vector3 newCameraPosition = new Vector3(transform.position.x,transform.position.y,Camera.main.transform.position.z);
+
+		Vector2 screeBottomLeftWorldPosition = new Vector2(newCameraPosition.x, newCameraPosition.y) - new Vector2(Camera.main.GetComponent<Camera>().orthographicSize * Screen.width/Screen.height, Camera.main.GetComponent<Camera>().orthographicSize);
+		Vector2 screeTopRightWorldPosition = new Vector2(newCameraPosition.x, newCameraPosition.y) + new Vector2(Camera.main.GetComponent<Camera>().orthographicSize * Screen.width/Screen.height, Camera.main.GetComponent<Camera>().orthographicSize);
+
+		if(screeBottomLeftWorldPosition.x <= 0) {
+			newCameraPosition.x = Camera.main.GetComponent<Camera>().orthographicSize * Screen.width/Screen.height;
+		} else if(screeTopRightWorldPosition.x >= 64) {
+			newCameraPosition.x = 64 - Camera.main.GetComponent<Camera>().orthographicSize * Screen.width/Screen.height;
+		}
+		if(screeBottomLeftWorldPosition.y <= 0) {
+			newCameraPosition.y = Camera.main.GetComponent<Camera>().orthographicSize;
+		} else if(screeTopRightWorldPosition.y >= 64) {
+			newCameraPosition.y = 64 - Camera.main.GetComponent<Camera>().orthographicSize;
+		} 
+
+		Camera.main.transform.position = newCameraPosition;
 	}
 }
