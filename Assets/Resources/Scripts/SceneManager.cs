@@ -53,7 +53,6 @@ public class SceneManager : MonoBehaviour {
 
 			//button.onClick.RemoveAllListeners();
 			if(_sm.functionMap.ContainsKey(button.name)) {
-				Debug.Log(button.name);
 				button.onClick.AddListener(_sm.functionMap[button.name]);
 			} else {
 				//See if we found a match for a level selection button

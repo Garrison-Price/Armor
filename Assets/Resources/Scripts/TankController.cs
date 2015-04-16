@@ -11,6 +11,8 @@ public class TankController : MonoBehaviour {
 	private float previousFireTime = 0.0f;
 	private GameObject tankShell;
 
+	public AudioClip fireRoundSound;
+
 	void Awake() {
 		tankShell = Resources.Load("Sprites/Tank/Shell") as GameObject;
 	}
@@ -52,6 +54,7 @@ public class TankController : MonoBehaviour {
 		//Fire Shell
 		if(Input.GetButton("FireTankShell") && Time.time - previousFireTime > timeBetweenRounds) {
 			GameObject.Instantiate(tankShell,new Vector3(GetComponent<Rigidbody2D>().position.x,GetComponent<Rigidbody2D>().position.y,0),transform.Find("TankTurret").transform.rotation);
+			AudioSource.PlayClipAtPoint(fireRoundSound,new Vector3(GetComponent<Rigidbody2D>().position.x,GetComponent<Rigidbody2D>().position.y,0),PlayerPrefs.GetFloat("SoundVolume")*(PlayerPrefs.GetInt("SoundMute")^1));
 			previousFireTime = Time.time;
 		}
 	}
