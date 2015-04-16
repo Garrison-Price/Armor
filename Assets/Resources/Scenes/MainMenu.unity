@@ -605,6 +605,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menuMusic: {fileID: 8300000, guid: 2261bf6ff8593e447a266093c23ec5b1, type: 3}
   levelMusic: {fileID: 8300000, guid: bb3533a02230d3041923f553f1c47771, type: 3}
+  winMusic: {fileID: 8300000, guid: d2393a4b9aa99ab478b81bb5fafca45d, type: 3}
 --- !u!1 &1145858299
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,6 +8,7 @@ public class SceneManager : MonoBehaviour {
 	private static SceneManager _sm;
 	private Dictionary<string, UnityEngine.Events.UnityAction> functionMap;
 	LevelGenerator l;
+	private int previousLevelPlayed;
 	
 	void Awake() {
 		if(_sm == null) {
@@ -26,8 +27,12 @@ public class SceneManager : MonoBehaviour {
 
 	void OnLevelWasLoaded() {
 		LoadButtons();
-		if(l != null) 
+		if(previousScene.Equals("GameLevel"))
+			l = null;
+		if(l != null) {
 			l.BuildScene();
+			previousScene = "GameLevel";
+		}
 	}
 
 	//This function creates and initializes the dictionary of buttons.
@@ -41,6 +46,7 @@ public class SceneManager : MonoBehaviour {
 			functionMap.Add("CreditsButton",()=>{CreditsButtonClicked();});
 			functionMap.Add("QuitButton",()=>{QuitButtonClicked();});
 			functionMap.Add("BackButton",()=>{BackButtonClicked();});
+			functionMap.Add("ReturnMenu",()=>{ReturnMenuButtonClicked();});
 		}
 	}
 
@@ -71,6 +77,7 @@ public class SceneManager : MonoBehaviour {
 	//Button clicked to select and play a level
 	public void SelectLevelButtonClicked(int level) {
 		Application.LoadLevel(string.Concat("GameLevel"));
+		previousLevelPlayed = level;
 		l = new LevelGenerator(64,level);
 	}
 
@@ -95,5 +102,11 @@ public class SceneManager : MonoBehaviour {
 	//Button clicked to quit the game.
 	public void QuitButtonClicked() {
 		Application.Quit();
+	}
+
+	public void ReturnMenuButtonClicked() {
+		previousScene = "MainMenu";
+		PlayerPrefs.SetInt(string.Concat("Level",previousLevelPlayed,"Completed"),1);
+		Application.LoadLevel("MainMenu");
 	}
 }

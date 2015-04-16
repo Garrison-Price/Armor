@@ -26,5 +26,6 @@ public class TankShell : MonoBehaviour {
 		float volume = PlayerPrefs.GetFloat("SoundVolume");
 		int mute = PlayerPrefs.GetInt("SoundMute");
 		AudioSource.PlayClipAtPoint(shellExplode,GetComponent<Rigidbody2D>().transform.position,volume*(mute^1));
+		Destroy(this.gameObject);
 	}
 }

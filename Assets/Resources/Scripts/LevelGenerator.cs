@@ -12,6 +12,7 @@ public class LevelGenerator {
 	private GameObject[] rocks;
 	private GameObject ground;
 	private GameObject path;
+	private GameObject enemy;
 	private int currentLevel;
 	private int levelSize;
 	public bool doneGenerating;
@@ -37,6 +38,7 @@ public class LevelGenerator {
 		rocks = Resources.LoadAll("Sprites/Scenery/Rocks").Cast<GameObject>().ToArray();
 		ground = Resources.Load("Sprites/Ground") as GameObject;
 		path = Resources.Load("Sprites/Path") as GameObject;
+		enemy = Resources.Load("Sprites/Enemy") as GameObject;
 		levelTemplate = Resources.Load("Art/Levels/Level"+currentLevel+"Path") as Texture2D;
 		placedObjects = new List<GameObject>();
 	}
@@ -90,6 +92,8 @@ public class LevelGenerator {
 				} else {
 					//Path
 					groundObject = (GameObject) GameObject.Instantiate(path);
+					if(Random.value > .5f)
+						GameObject.Instantiate(enemy,new Vector3(x,y,0),Quaternion.identity);
 				}
 				groundObject.transform.position = new Vector3(x,y,0);
 			}
@@ -132,5 +136,9 @@ public class LevelGenerator {
 				}
 			}
 		}
+	}
+
+	public int LevelNumber() {
+		return currentLevel;
 	}
 }

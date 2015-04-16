@@ -8,6 +8,7 @@ public class SoundManager : MonoBehaviour {
 	
 	public AudioClip menuMusic;
 	public AudioClip levelMusic;
+	public AudioClip winMusic;
 
 	private float musicVolume;
 	private float soundVolume;
@@ -34,6 +35,8 @@ public class SoundManager : MonoBehaviour {
 	void OnLevelWasLoaded() {
 		if(Application.loadedLevelName.Equals("GameLevel"))
 			PlayLevelMusic();
+		else if(Application.loadedLevelName.Equals("WinScene"))
+			PlayWinMusic();
 		else
 			PlayMenuMusic();
 	}
@@ -53,6 +56,14 @@ public class SoundManager : MonoBehaviour {
 	private void PlayLevelMusic() {
 		if(_sm.player.clip == null || !player.clip.Equals (levelMusic)) {
 			_sm.player.clip = levelMusic;
+			_sm.player.loop = true;
+			_sm.player.Play();
+		}
+	}
+
+	private void PlayWinMusic() {
+		if(_sm.player.clip == null || !player.clip.Equals (winMusic)) {
+			_sm.player.clip = winMusic;
 			_sm.player.loop = true;
 			_sm.player.Play();
 		}

@@ -464,7 +464,9 @@ MonoBehaviour:
 
     Explosion Sound: Mike Koenig - SoundBible.com
 
-    Music - BattleLands & Ariely: DST - NoSoapRadio.us'
+    Music: DST - NoSoapRadio.us
+
+    Controls Images: Flaw.SourceForge.net'
 --- !u!222 &1916940729
 CanvasRenderer:
   m_ObjectHideFlags: 0
